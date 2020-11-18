@@ -17,15 +17,18 @@
 package com.google.samples.apps.sunflower.viewmodels
 
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.sunflower.data.GardenPlantingRepository
 import com.google.samples.apps.sunflower.data.PlantAndGardenPlantings
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.stateIn
 
 class GardenPlantingListViewModel @ViewModelInject internal constructor(
     gardenPlantingRepository: GardenPlantingRepository
 ) : ViewModel() {
-    val plantAndGardenPlantings: LiveData<List<PlantAndGardenPlantings>> =
-        gardenPlantingRepository.getPlantedGardens().asLiveData()
+    val plantAndGardenPlantings: Flow<List<PlantAndGardenPlantings>> =
+        gardenPlantingRepository.getPlantedGardens().stateIn(viewModelScope, SharingStarted.Lazily, null).filterNotNull()
 }
