@@ -18,6 +18,7 @@ package com.google.samples.apps.sunflower.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.sunflower.BuildConfig
 import com.google.samples.apps.sunflower.PlantDetailFragment
@@ -37,7 +38,7 @@ class PlantDetailViewModel @AssistedInject constructor(
 ) : ViewModel() {
 
     val isPlanted = gardenPlantingRepository.isPlanted(plantId)
-    val plant = plantRepository.getPlant(plantId)
+    val plant = plantRepository.getPlant(plantId).asLiveData()
 
     fun addPlantToGarden() {
         viewModelScope.launch {
