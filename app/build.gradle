@@ -61,6 +61,7 @@ android {
         // Enable Coroutines and Flow APIs
         freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
         freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.FlowPreview"
+        freeCompilerArgs += "-Xopt-in=kotlin.time.ExperimentalTime"
     }
 }
 
@@ -108,7 +109,9 @@ dependencies {
     androidTestImplementation "androidx.work:work-testing:$rootProject.workVersion"
     androidTestImplementation "com.google.truth:truth:$rootProject.truthVersion"
     androidTestImplementation "com.google.dagger:hilt-android-testing:$rootProject.hiltVersion"
+    androidTestImplementation "app.cash.turbine:turbine:$rootProject.turbineVersion"
     testImplementation "junit:junit:$rootProject.junitVersion"
+    testImplementation "app.cash.turbine:turbine:$rootProject.turbineVersion"
 }
 
 def getUnsplashAccess() {

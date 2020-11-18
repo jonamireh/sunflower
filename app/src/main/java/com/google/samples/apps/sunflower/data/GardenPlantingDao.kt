@@ -22,6 +22,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 
 /**
  * The Data Access Object for the [GardenPlanting] class.
@@ -29,10 +30,23 @@ import androidx.room.Transaction
 @Dao
 interface GardenPlantingDao {
     @Query("SELECT * FROM garden_plantings")
-    fun getGardenPlantings(): LiveData<List<GardenPlanting>>
+    fun getGardenPlantings(): Flow<List<GardenPlanting>>
 
+    @Deprecated("Use the Flow version instead.")
     @Query("SELECT EXISTS(SELECT 1 FROM garden_plantings WHERE plant_id = :plantId LIMIT 1)")
     fun isPlanted(plantId: String): LiveData<Boolean>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM garden_plantings WHERE plant_id = :plantId LIMIT 1)")
+    fun isPlantedFlow(plantId: String): Flow<Boolean>
+
+    /**
+     * This query will tell Room to query both the [Plant] and [GardenPlanting] tables and handle
+     * the object mapping.
+     */
+    @Deprecated("Use the Flow version instead.")
+    @Transaction
+    @Query("SELECT * FROM plants WHERE id IN (SELECT DISTINCT(plant_id) FROM garden_plantings)")
+    fun getPlantedGardens(): LiveData<List<PlantAndGardenPlantings>>
 
     /**
      * This query will tell Room to query both the [Plant] and [GardenPlanting] tables and handle
@@ -40,7 +54,7 @@ interface GardenPlantingDao {
      */
     @Transaction
     @Query("SELECT * FROM plants WHERE id IN (SELECT DISTINCT(plant_id) FROM garden_plantings)")
-    fun getPlantedGardens(): LiveData<List<PlantAndGardenPlantings>>
+    fun getPlantedGardensFlow(): Flow<List<PlantAndGardenPlantings>>
 
     @Insert
     suspend fun insertGardenPlanting(gardenPlanting: GardenPlanting): Long

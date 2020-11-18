@@ -20,6 +20,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.platform.app.InstrumentationRegistry
+import app.cash.turbine.test
 import com.google.samples.apps.sunflower.utilities.getValue
 import com.google.samples.apps.sunflower.utilities.testCalendar
 import com.google.samples.apps.sunflower.utilities.testGardenPlanting
@@ -28,8 +29,7 @@ import com.google.samples.apps.sunflower.utilities.testPlants
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.After
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -57,12 +57,15 @@ class GardenPlantingDaoTest {
 
     @Test fun testGetGardenPlantings() = runBlocking {
         val gardenPlanting2 = GardenPlanting(
-            testPlants[1].plantId,
-            testCalendar,
-            testCalendar
+                testPlants[1].plantId,
+                testCalendar,
+                testCalendar
         ).also { it.gardenPlantingId = 2 }
         gardenPlantingDao.insertGardenPlanting(gardenPlanting2)
-        assertThat(getValue(gardenPlantingDao.getGardenPlantings()).size, equalTo(2))
+        gardenPlantingDao.getGardenPlantings().test {
+            assertThat(2, equalTo(expectItem().size))
+            cancel()
+        }
     }
 
     @Test fun testDeleteGardenPlanting() = runBlocking {
@@ -72,28 +75,43 @@ class GardenPlantingDaoTest {
             testCalendar
         ).also { it.gardenPlantingId = 2 }
         gardenPlantingDao.insertGardenPlanting(gardenPlanting2)
-        assertThat(getValue(gardenPlantingDao.getGardenPlantings()).size, equalTo(2))
+        gardenPlantingDao.getGardenPlantings().test {
+            assertThat(2, equalTo(expectItem().size))
+            cancel()
+        }
         gardenPlantingDao.deleteGardenPlanting(gardenPlanting2)
-        assertThat(getValue(gardenPlantingDao.getGardenPlantings()).size, equalTo(1))
+        gardenPlantingDao.getGardenPlantings().test {
+            assertThat(1, equalTo(expectItem().size))
+            cancel()
+        }
     }
 
-    @Test fun testGetGardenPlantingForPlant() {
-        assertTrue(getValue(gardenPlantingDao.isPlanted(testPlant.plantId)))
+    @Test fun testGetGardenPlantingForPlant() = runBlocking {
+        gardenPlantingDao.isPlantedFlow(testPlant.plantId).test {
+            assertTrue(expectItem())
+            cancel()
+        }
     }
 
-    @Test fun testGetGardenPlantingForPlant_notFound() {
-        assertFalse(getValue(gardenPlantingDao.isPlanted(testPlants[2].plantId)))
+    @Test fun testGetGardenPlantingForPlant_notFound() = runBlocking {
+        gardenPlantingDao.isPlantedFlow(testPlants[2].plantId).test {
+            assertFalse(expectItem())
+            cancel()
+        }
     }
 
-    @Test fun testGetPlantAndGardenPlantings() {
-        val plantAndGardenPlantings = getValue(gardenPlantingDao.getPlantedGardens())
-        assertThat(plantAndGardenPlantings.size, equalTo(1))
+    @Test fun testGetPlantAndGardenPlantings() = runBlocking {
+        gardenPlantingDao.getPlantedGardensFlow().test {
+            val plantAndGardenPlantings = expectItem()
+            assertThat(plantAndGardenPlantings.size, equalTo(1))
 
-        /**
-         * Only the [testPlant] has been planted, and thus has an associated [GardenPlanting]
-         */
-        assertThat(plantAndGardenPlantings[0].plant, equalTo(testPlant))
-        assertThat(plantAndGardenPlantings[0].gardenPlantings.size, equalTo(1))
-        assertThat(plantAndGardenPlantings[0].gardenPlantings[0], equalTo(testGardenPlanting))
+            /**
+             * Only the [testPlant] has been planted, and thus has an associated [GardenPlanting]
+             */
+            assertThat(plantAndGardenPlantings[0].plant, equalTo(testPlant))
+            assertThat(plantAndGardenPlantings[0].gardenPlantings.size, equalTo(1))
+            assertThat(plantAndGardenPlantings[0].gardenPlantings[0], equalTo(testGardenPlanting))
+            cancel()
+        }
     }
 }
