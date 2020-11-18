@@ -37,7 +37,7 @@ class PlantDetailViewModel @AssistedInject constructor(
     @Assisted private val plantId: String
 ) : ViewModel() {
 
-    val isPlanted = gardenPlantingRepository.isPlanted(plantId)
+    val isPlanted = gardenPlantingRepository.isPlanted(plantId).asLiveData()
     val plant = plantRepository.getPlant(plantId).asLiveData()
 
     fun addPlantToGarden() {
