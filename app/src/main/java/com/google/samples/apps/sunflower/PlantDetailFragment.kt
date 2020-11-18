@@ -27,6 +27,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -35,7 +36,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.samples.apps.sunflower.data.Plant
 import com.google.samples.apps.sunflower.databinding.FragmentPlantDetailBinding
 import com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel
+import com.google.samples.apps.sunflower.viewmodels.toUiData
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 /**
@@ -67,19 +70,29 @@ class PlantDetailFragment : Fragment() {
             container,
             false
         ).apply {
-            viewModel = plantDetailViewModel
-            lifecycleOwner = viewLifecycleOwner
-            callback = Callback { plant ->
-                plant?.let {
-                    hideAppBarFab(fab)
-                    plantDetailViewModel.addPlantToGarden()
-                    Snackbar.make(root, R.string.added_plant_to_garden, Snackbar.LENGTH_LONG)
-                        .show()
+            lifecycleScope.launchWhenStarted {
+                plantDetailViewModel.state.collect {
+                    val uiData = it.toUiData {
+                        hideAppBarFab(fab)
+                        plantDetailViewModel.addPlantToGarden()
+                        Snackbar.make(root, R.string.added_plant_to_garden, Snackbar.LENGTH_LONG)
+                                .show()
+                    }
+                    viewModel = uiData
+
+                    galleryNav.setOnClickListener { navigateToGallery(uiData.plant) }
+                    toolbar.setOnMenuItemClickListener { item ->
+                        when (item.itemId) {
+                            R.id.action_share -> {
+                                createShareIntent(uiData.plant)
+                                true
+                            }
+                            else -> false
+                        }
+                    }
                 }
             }
-
-            galleryNav.setOnClickListener { navigateToGallery() }
-
+            
             var isToolbarShown = false
 
             // scroll change listener begins at Y = 0 when image is fully collapsed
@@ -107,41 +120,23 @@ class PlantDetailFragment : Fragment() {
             toolbar.setNavigationOnClickListener { view ->
                 view.findNavController().navigateUp()
             }
-
-            toolbar.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.action_share -> {
-                        createShareIntent()
-                        true
-                    }
-                    else -> false
-                }
-            }
         }
         setHasOptionsMenu(true)
 
         return binding.root
     }
 
-    private fun navigateToGallery() {
-        plantDetailViewModel.plant.value?.let { plant ->
-            val direction =
-                PlantDetailFragmentDirections.actionPlantDetailFragmentToGalleryFragment(plant.name)
-            findNavController().navigate(direction)
-        }
+    private fun navigateToGallery(plant: Plant) {
+        val direction =
+            PlantDetailFragmentDirections.actionPlantDetailFragmentToGalleryFragment(plant.name)
+        findNavController().navigate(direction)
     }
 
     // Helper function for calling a share functionality.
     // Should be used when user presses a share button/menu item.
     @Suppress("DEPRECATION")
-    private fun createShareIntent() {
-        val shareText = plantDetailViewModel.plant.value.let { plant ->
-            if (plant == null) {
-                ""
-            } else {
-                getString(R.string.share_text_plant, plant.name)
-            }
-        }
+    private fun createShareIntent(plant: Plant) {
+        val shareText = getString(R.string.share_text_plant, plant.name)
         val shareIntent = ShareCompat.IntentBuilder.from(requireActivity())
             .setText(shareText)
             .setType("text/plain")

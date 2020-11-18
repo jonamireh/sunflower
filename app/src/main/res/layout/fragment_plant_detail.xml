@@ -22,10 +22,7 @@
         <import type="com.google.samples.apps.sunflower.data.Plant"/>
         <variable
             name="viewModel"
-            type="com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel" />
-        <variable
-            name="callback"
-            type="com.google.samples.apps.sunflower.PlantDetailFragment.Callback" />
+            type="com.google.samples.apps.sunflower.viewmodels.PlantDetailViewModel.UiData" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -152,7 +149,7 @@
                     android:contentDescription="@string/gallery_content_description"
                     android:focusable="true"
                     android:src="@drawable/ic_photo_library"
-                    app:isGone="@{!viewModel.hasValidUnsplashKey()}"
+                    app:isGone="@{!viewModel.hasValidUnsplashKey}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/plant_detail_name" />
 
@@ -182,7 +179,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/fab_margin"
-            android:onClick="@{() -> callback.add(viewModel.plant)}"
+            android:onClick="@{() -> viewModel.onFabClicked.invoke()}"
             android:tint="@android:color/white"
             app:shapeAppearance="@style/ShapeAppearance.Sunflower.FAB"
             app:isFabGone="@{viewModel.isPlanted}"

@@ -23,9 +23,14 @@ import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.sunflower.BuildConfig
 import com.google.samples.apps.sunflower.PlantDetailFragment
 import com.google.samples.apps.sunflower.data.GardenPlantingRepository
+import com.google.samples.apps.sunflower.data.Plant
 import com.google.samples.apps.sunflower.data.PlantRepository
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -37,8 +42,9 @@ class PlantDetailViewModel @AssistedInject constructor(
     @Assisted private val plantId: String
 ) : ViewModel() {
 
-    val isPlanted = gardenPlantingRepository.isPlanted(plantId).asLiveData()
-    val plant = plantRepository.getPlant(plantId).asLiveData()
+    val state = plantRepository.getPlant(plantId).combine(gardenPlantingRepository.isPlanted(plantId)) { plant, isPlanted ->
+        Data(plant, isPlanted, hasValidUnsplashKey())
+    }.stateIn(viewModelScope, SharingStarted.Lazily, null).filterNotNull()
 
     fun addPlantToGarden() {
         viewModelScope.launch {
@@ -46,7 +52,7 @@ class PlantDetailViewModel @AssistedInject constructor(
         }
     }
 
-    fun hasValidUnsplashKey() = (BuildConfig.UNSPLASH_ACCESS_KEY != "null")
+    private fun hasValidUnsplashKey() = (BuildConfig.UNSPLASH_ACCESS_KEY != "null")
 
     @AssistedInject.Factory
     interface AssistedFactory {
@@ -64,4 +70,8 @@ class PlantDetailViewModel @AssistedInject constructor(
             }
         }
     }
+
+    data class Data(val plant: Plant, val isPlanted: Boolean, val hasValidUnsplashKey: Boolean)
+    data class UiData(val plant: Plant, val isPlanted: Boolean, val hasValidUnsplashKey: Boolean, val onFabClicked: () -> Unit)
 }
+fun PlantDetailViewModel.Data.toUiData(onFabClicked: () -> Unit) = PlantDetailViewModel.UiData(plant, isPlanted, hasValidUnsplashKey, onFabClicked)

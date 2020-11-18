@@ -16,7 +16,6 @@
 
 package com.google.samples.apps.sunflower.data
 
-import androidx.lifecycle.asLiveData
 import javax.inject.Inject
 import javax.inject.Singleton
 
