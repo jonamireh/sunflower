@@ -32,21 +32,8 @@ interface GardenPlantingDao {
     @Query("SELECT * FROM garden_plantings")
     fun getGardenPlantings(): Flow<List<GardenPlanting>>
 
-    @Deprecated("Use the Flow version instead.")
     @Query("SELECT EXISTS(SELECT 1 FROM garden_plantings WHERE plant_id = :plantId LIMIT 1)")
-    fun isPlanted(plantId: String): LiveData<Boolean>
-
-    @Query("SELECT EXISTS(SELECT 1 FROM garden_plantings WHERE plant_id = :plantId LIMIT 1)")
-    fun isPlantedFlow(plantId: String): Flow<Boolean>
-
-    /**
-     * This query will tell Room to query both the [Plant] and [GardenPlanting] tables and handle
-     * the object mapping.
-     */
-    @Deprecated("Use the Flow version instead.")
-    @Transaction
-    @Query("SELECT * FROM plants WHERE id IN (SELECT DISTINCT(plant_id) FROM garden_plantings)")
-    fun getPlantedGardens(): LiveData<List<PlantAndGardenPlantings>>
+    fun isPlanted(plantId: String): Flow<Boolean>
 
     /**
      * This query will tell Room to query both the [Plant] and [GardenPlanting] tables and handle
@@ -54,7 +41,7 @@ interface GardenPlantingDao {
      */
     @Transaction
     @Query("SELECT * FROM plants WHERE id IN (SELECT DISTINCT(plant_id) FROM garden_plantings)")
-    fun getPlantedGardensFlow(): Flow<List<PlantAndGardenPlantings>>
+    fun getPlantedGardens(): Flow<List<PlantAndGardenPlantings>>
 
     @Insert
     suspend fun insertGardenPlanting(gardenPlanting: GardenPlanting): Long

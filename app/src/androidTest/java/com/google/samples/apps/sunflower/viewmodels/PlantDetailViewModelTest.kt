@@ -22,6 +22,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.samples.apps.sunflower.data.AppDatabase
 import com.google.samples.apps.sunflower.data.GardenPlantingRepository
 import com.google.samples.apps.sunflower.data.PlantRepository
+import com.google.samples.apps.sunflower.utilities.MainCoroutineRule
 import com.google.samples.apps.sunflower.utilities.getValue
 import com.google.samples.apps.sunflower.utilities.testPlant
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -42,10 +43,12 @@ class PlantDetailViewModelTest {
     private lateinit var viewModel: PlantDetailViewModel
     private val hiltRule = HiltAndroidRule(this)
     private val instantTaskExecutorRule = InstantTaskExecutorRule()
+    private val mainCoroutineRule = MainCoroutineRule()
 
     @get:Rule
     val rule = RuleChain
             .outerRule(hiltRule)
+            .around(mainCoroutineRule)
             .around(instantTaskExecutorRule)
 
     @Inject

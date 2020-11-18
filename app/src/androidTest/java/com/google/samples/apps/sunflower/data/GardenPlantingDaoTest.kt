@@ -87,21 +87,21 @@ class GardenPlantingDaoTest {
     }
 
     @Test fun testGetGardenPlantingForPlant() = runBlocking {
-        gardenPlantingDao.isPlantedFlow(testPlant.plantId).test {
+        gardenPlantingDao.isPlanted(testPlant.plantId).test {
             assertTrue(expectItem())
             cancel()
         }
     }
 
     @Test fun testGetGardenPlantingForPlant_notFound() = runBlocking {
-        gardenPlantingDao.isPlantedFlow(testPlants[2].plantId).test {
+        gardenPlantingDao.isPlanted(testPlants[2].plantId).test {
             assertFalse(expectItem())
             cancel()
         }
     }
 
     @Test fun testGetPlantAndGardenPlantings() = runBlocking {
-        gardenPlantingDao.getPlantedGardensFlow().test {
+        gardenPlantingDao.getPlantedGardens().test {
             val plantAndGardenPlantings = expectItem()
             assertThat(plantAndGardenPlantings.size, equalTo(1))
 

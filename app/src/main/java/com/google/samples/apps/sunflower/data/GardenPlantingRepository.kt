@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.sunflower.data
 
+import androidx.lifecycle.asLiveData
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,7 +35,7 @@ class GardenPlantingRepository @Inject constructor(
     }
 
     fun isPlanted(plantId: String) =
-        gardenPlantingDao.isPlanted(plantId)
+        gardenPlantingDao.isPlanted(plantId).asLiveData()
 
-    fun getPlantedGardens() = gardenPlantingDao.getPlantedGardens()
+    fun getPlantedGardens() = gardenPlantingDao.getPlantedGardens().asLiveData()
 }
