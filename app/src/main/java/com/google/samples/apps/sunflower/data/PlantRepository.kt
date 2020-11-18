@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.sunflower.data
 
+import androidx.lifecycle.asLiveData
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,10 +26,10 @@ import javax.inject.Singleton
 @Singleton
 class PlantRepository @Inject constructor(private val plantDao: PlantDao) {
 
-    fun getPlants() = plantDao.getPlants()
+    fun getPlants() = plantDao.getPlants().asLiveData()
 
-    fun getPlant(plantId: String) = plantDao.getPlant(plantId)
+    fun getPlant(plantId: String) = plantDao.getPlant(plantId).asLiveData()
 
     fun getPlantsWithGrowZoneNumber(growZoneNumber: Int) =
-        plantDao.getPlantsWithGrowZoneNumber(growZoneNumber)
+        plantDao.getPlantsWithGrowZoneNumber(growZoneNumber).asLiveData()
 }

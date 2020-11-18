@@ -28,26 +28,14 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface PlantDao {
-    @Deprecated("Use the Flow version instead.")
     @Query("SELECT * FROM plants ORDER BY name")
-    fun getPlants(): LiveData<List<Plant>>
-
-    @Query("SELECT * FROM plants ORDER BY name")
-    fun getPlantsFlow(): Flow<List<Plant>>
-
-    @Deprecated("Use the Flow version instead.")
-    @Query("SELECT * FROM plants WHERE growZoneNumber = :growZoneNumber ORDER BY name")
-    fun getPlantsWithGrowZoneNumber(growZoneNumber: Int): LiveData<List<Plant>>
+    fun getPlants(): Flow<List<Plant>>
 
     @Query("SELECT * FROM plants WHERE growZoneNumber = :growZoneNumber ORDER BY name")
-    fun getPlantsWithGrowZoneNumberFlow(growZoneNumber: Int): Flow<List<Plant>>
-
-    @Deprecated("Use the Flow version instead.")
-    @Query("SELECT * FROM plants WHERE id = :plantId")
-    fun getPlant(plantId: String): LiveData<Plant>
+    fun getPlantsWithGrowZoneNumber(growZoneNumber: Int): Flow<List<Plant>>
 
     @Query("SELECT * FROM plants WHERE id = :plantId")
-    fun getPlantFlow(plantId: String): Flow<Plant>
+    fun getPlant(plantId: String): Flow<Plant>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(plants: List<Plant>)

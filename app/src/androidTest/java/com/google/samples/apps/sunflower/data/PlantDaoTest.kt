@@ -55,7 +55,7 @@ class PlantDaoTest {
     }
 
     @Test fun testGetPlants() = runBlocking {
-        plantDao.getPlantsFlow().test {
+        plantDao.getPlants().test {
             val plantList = expectItem()
             assertThat(plantList.size, equalTo(3))
 
@@ -68,7 +68,7 @@ class PlantDaoTest {
     }
 
     @Test fun testGetPlantsWithGrowZoneNumber() = runBlocking {
-        plantDao.getPlantsWithGrowZoneNumberFlow(1).test {
+        plantDao.getPlantsWithGrowZoneNumber(1).test {
             val plantList = expectItem()
             assertThat(plantList.size, equalTo(2))
 
@@ -77,18 +77,18 @@ class PlantDaoTest {
             assertThat(plantList[1], equalTo(plantB))
             cancel()
         }
-        plantDao.getPlantsWithGrowZoneNumberFlow(2).test {
+        plantDao.getPlantsWithGrowZoneNumber(2).test {
             assertThat(expectItem().size, equalTo(1))
             cancel()
         }
-        plantDao.getPlantsWithGrowZoneNumberFlow(3).test {
+        plantDao.getPlantsWithGrowZoneNumber(3).test {
             assertThat(expectItem().size, equalTo(0))
             cancel()
         }
     }
 
     @Test fun testGetPlant() = runBlocking {
-        plantDao.getPlantFlow(plantA.plantId).test {
+        plantDao.getPlant(plantA.plantId).test {
             assertThat(expectItem(), equalTo(plantA))
             cancel()
         }
