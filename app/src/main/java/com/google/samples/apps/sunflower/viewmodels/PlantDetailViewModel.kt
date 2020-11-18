@@ -41,9 +41,10 @@ class PlantDetailViewModel @AssistedInject constructor(
     @Assisted private val plantId: String
 ) : ViewModel() {
 
-    val state = plantRepository.getPlant(plantId).combine(gardenPlantingRepository.isPlanted(plantId)) { plant, isPlanted ->
-        Data(plant, isPlanted, hasValidUnsplashKey())
-    }.stateIn(viewModelScope, SharingStarted.Lazily, null).filterNotNull()
+    val state = plantRepository.getPlant(plantId)
+            .combine(gardenPlantingRepository.isPlanted(plantId)) { plant, isPlanted ->
+                Data(plant, isPlanted, hasValidUnsplashKey())
+            }.stateIn(viewModelScope, SharingStarted.Lazily, null).filterNotNull()
 
     fun addPlantToGarden() {
         viewModelScope.launch {
@@ -70,7 +71,11 @@ class PlantDetailViewModel @AssistedInject constructor(
         }
     }
 
-    data class Data(val plant: Plant, val isPlanted: Boolean, val hasValidUnsplashKey: Boolean)
+    data class Data(val plant: Plant?, val isPlanted: Boolean, val hasValidUnsplashKey: Boolean)
     data class UiData(val plant: Plant, val isPlanted: Boolean, val hasValidUnsplashKey: Boolean, val onFabClicked: () -> Unit)
 }
-fun PlantDetailViewModel.Data.toUiData(onFabClicked: () -> Unit) = PlantDetailViewModel.UiData(plant, isPlanted, hasValidUnsplashKey, onFabClicked)
+fun PlantDetailViewModel.Data.toUiData(onFabClicked: () -> Unit) : PlantDetailViewModel.UiData? {
+    return plant?.let {
+        PlantDetailViewModel.UiData(it, isPlanted, hasValidUnsplashKey, onFabClicked)
+    }
+}

@@ -40,23 +40,31 @@ class PlantListViewModel @ViewModelInject internal constructor(
                     .asFlow()
                     .stateIn(viewModelScope, SharingStarted.Lazily, NO_GROW_ZONE)
 
-    val plants: LiveData<List<Plant>> = savedGrowZoneNumber.flatMapLatest {
+    val plants = savedGrowZoneNumber.flatMapLatest {
         if (it == NO_GROW_ZONE) {
             plantRepository.getPlants()
         } else {
             plantRepository.getPlantsWithGrowZoneNumber(it)
         }
-    }.asLiveData()
+    }
 
-    fun setGrowZoneNumber(num: Int) {
+    private fun setGrowZoneNumber(num: Int) {
         savedStateHandle.set(GROW_ZONE_SAVED_STATE_KEY, num)
     }
 
-    fun clearGrowZoneNumber() {
+    private fun clearGrowZoneNumber() {
         savedStateHandle.set(GROW_ZONE_SAVED_STATE_KEY, NO_GROW_ZONE)
     }
 
-    fun isFiltered() = savedGrowZoneNumber.value != NO_GROW_ZONE
+    private fun isFiltered() = savedGrowZoneNumber.value != NO_GROW_ZONE
+
+    fun filterZone() {
+        if (isFiltered()) {
+            clearGrowZoneNumber()
+        } else {
+            setGrowZoneNumber(9)
+        }
+    }
 
     companion object {
         private const val NO_GROW_ZONE = -1

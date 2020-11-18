@@ -34,7 +34,7 @@ interface PlantDao {
     fun getPlantsWithGrowZoneNumber(growZoneNumber: Int): Flow<List<Plant>>
 
     @Query("SELECT * FROM plants WHERE id = :plantId")
-    fun getPlant(plantId: String): Flow<Plant>
+    fun getPlant(plantId: String): Flow<Plant?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(plants: List<Plant>)

@@ -78,16 +78,18 @@ class PlantDetailFragment : Fragment() {
                         Snackbar.make(root, R.string.added_plant_to_garden, Snackbar.LENGTH_LONG)
                                 .show()
                     }
-                    viewModel = uiData
+                    uiData?.let {
+                        viewModel = uiData
 
-                    galleryNav.setOnClickListener { navigateToGallery(uiData.plant) }
-                    toolbar.setOnMenuItemClickListener { item ->
-                        when (item.itemId) {
-                            R.id.action_share -> {
-                                createShareIntent(uiData.plant)
-                                true
+                        galleryNav.setOnClickListener { navigateToGallery(uiData.plant) }
+                        toolbar.setOnMenuItemClickListener { item ->
+                            when (item.itemId) {
+                                R.id.action_share -> {
+                                    createShareIntent(uiData.plant)
+                                    true
+                                }
+                                else -> false
                             }
-                            else -> false
                         }
                     }
                 }

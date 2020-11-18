@@ -19,6 +19,7 @@ package com.google.samples.apps.sunflower.viewmodels
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
+import app.cash.turbine.test
 import com.google.samples.apps.sunflower.data.AppDatabase
 import com.google.samples.apps.sunflower.data.GardenPlantingRepository
 import com.google.samples.apps.sunflower.data.PlantRepository
@@ -27,6 +28,7 @@ import com.google.samples.apps.sunflower.utilities.getValue
 import com.google.samples.apps.sunflower.utilities.testPlant
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Before
@@ -74,7 +76,10 @@ class PlantDetailViewModelTest {
 
     @Test
     @Throws(InterruptedException::class)
-    fun testDefaultValues() {
-        assertFalse(getValue(viewModel.isPlanted))
+    fun testDefaultValues() = runBlocking {
+        viewModel.state.test {
+            assertFalse(expectItem().isPlanted)
+            cancel()
+        }
     }
 }
