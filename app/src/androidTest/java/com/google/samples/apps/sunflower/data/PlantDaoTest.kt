@@ -20,7 +20,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.samples.apps.sunflower.utilities.getValue
+import app.cash.turbine.test
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.equalTo
 import org.junit.After
@@ -54,28 +54,43 @@ class PlantDaoTest {
         database.close()
     }
 
-    @Test fun testGetPlants() {
-        val plantList = getValue(plantDao.getPlants())
-        assertThat(plantList.size, equalTo(3))
+    @Test fun testGetPlants() = runBlocking {
+        plantDao.getPlantsFlow().test {
+            val plantList = expectItem()
+            assertThat(plantList.size, equalTo(3))
 
-        // Ensure plant list is sorted by name
-        assertThat(plantList[0], equalTo(plantA))
-        assertThat(plantList[1], equalTo(plantB))
-        assertThat(plantList[2], equalTo(plantC))
+            // Ensure plant list is sorted by name
+            assertThat(plantList[0], equalTo(plantA))
+            assertThat(plantList[1], equalTo(plantB))
+            assertThat(plantList[2], equalTo(plantC))
+            cancel()
+        }
     }
 
-    @Test fun testGetPlantsWithGrowZoneNumber() {
-        val plantList = getValue(plantDao.getPlantsWithGrowZoneNumber(1))
-        assertThat(plantList.size, equalTo(2))
-        assertThat(getValue(plantDao.getPlantsWithGrowZoneNumber(2)).size, equalTo(1))
-        assertThat(getValue(plantDao.getPlantsWithGrowZoneNumber(3)).size, equalTo(0))
+    @Test fun testGetPlantsWithGrowZoneNumber() = runBlocking {
+        plantDao.getPlantsWithGrowZoneNumberFlow(1).test {
+            val plantList = expectItem()
+            assertThat(plantList.size, equalTo(2))
 
-        // Ensure plant list is sorted by name
-        assertThat(plantList[0], equalTo(plantA))
-        assertThat(plantList[1], equalTo(plantB))
+            // Ensure plant list is sorted by name
+            assertThat(plantList[0], equalTo(plantA))
+            assertThat(plantList[1], equalTo(plantB))
+            cancel()
+        }
+        plantDao.getPlantsWithGrowZoneNumberFlow(2).test {
+            assertThat(expectItem().size, equalTo(1))
+            cancel()
+        }
+        plantDao.getPlantsWithGrowZoneNumberFlow(3).test {
+            assertThat(expectItem().size, equalTo(0))
+            cancel()
+        }
     }
 
-    @Test fun testGetPlant() {
-        assertThat(getValue(plantDao.getPlant(plantA.plantId)), equalTo(plantA))
+    @Test fun testGetPlant() = runBlocking {
+        plantDao.getPlantFlow(plantA.plantId).test {
+            assertThat(expectItem(), equalTo(plantA))
+            cancel()
+        }
     }
 }

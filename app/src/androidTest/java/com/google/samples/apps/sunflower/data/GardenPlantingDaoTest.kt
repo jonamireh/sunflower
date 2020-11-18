@@ -21,7 +21,6 @@ import androidx.room.Room
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.platform.app.InstrumentationRegistry
 import app.cash.turbine.test
-import com.google.samples.apps.sunflower.utilities.getValue
 import com.google.samples.apps.sunflower.utilities.testCalendar
 import com.google.samples.apps.sunflower.utilities.testGardenPlanting
 import com.google.samples.apps.sunflower.utilities.testPlant
@@ -29,7 +28,8 @@ import com.google.samples.apps.sunflower.utilities.testPlants
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -63,7 +63,7 @@ class GardenPlantingDaoTest {
         ).also { it.gardenPlantingId = 2 }
         gardenPlantingDao.insertGardenPlanting(gardenPlanting2)
         gardenPlantingDao.getGardenPlantings().test {
-            assertThat(2, equalTo(expectItem().size))
+            assertThat(expectItem().size, equalTo(2))
             cancel()
         }
     }
@@ -76,12 +76,12 @@ class GardenPlantingDaoTest {
         ).also { it.gardenPlantingId = 2 }
         gardenPlantingDao.insertGardenPlanting(gardenPlanting2)
         gardenPlantingDao.getGardenPlantings().test {
-            assertThat(2, equalTo(expectItem().size))
+            assertThat(expectItem().size, equalTo(2))
             cancel()
         }
         gardenPlantingDao.deleteGardenPlanting(gardenPlanting2)
         gardenPlantingDao.getGardenPlantings().test {
-            assertThat(1, equalTo(expectItem().size))
+            assertThat(expectItem().size, equalTo(1))
             cancel()
         }
     }
